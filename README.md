@@ -86,7 +86,7 @@ node: async (_, args, { dataSources }) => {
       node = await dataSources.productDb.getProduct({ productId: id });
       break;
     case "Order":
-      node = await dataSources.brandDb.getOrder({ orderId: id });
+      node = await dataSources.orderDb.getOrder({ orderId: id });
       break;
     // Add more cases as needed for other typenames
     default:
