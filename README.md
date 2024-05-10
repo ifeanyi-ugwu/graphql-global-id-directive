@@ -1,6 +1,6 @@
 # Graphql Global Id Directive
 
-While transitioning to the use of global IDs (commonly known as node IDs), I found that encoding and decoding these IDs was a necessary step in various parts of my application, especially when using database IDs for queries and mutations. I sought a way to simplify this process by decoding the IDs before they reached the resolvers and encoding them on their way out. To address this, I created a package that makes the use of global IDs straightforward and efficient. This package includes a `GlobalIdDirective` class, which offers two directives: `globalIdEncodeDirective` and `globalIdDecodeDirective`. These directives handle the encoding and decoding of global IDs, making the integration of global IDs into any GraphQL application a breeze.
+While transitioning to the use of global IDs (commonly known as node IDs), I found that encoding and decoding these IDs was a necessary step in various parts of my application, especially when using database IDs for queries and mutations. I sought a way to simplify this process by decoding the IDs before they reached the resolvers and encoding them on their way out. To address this, I created this package to make the use of global IDs straightforward and efficient. This package includes a `GlobalIdDirective` class, which offers two directives: `globalIdEncodeDirective` and `globalIdDecodeDirective`. These directives handle the encoding and decoding of global IDs, making the integration of global IDs into any GraphQL application a breeze.
 
 ## Installation
 
@@ -26,7 +26,7 @@ const typeDefs = `
   }
 
   type Query {
-    user(id: ID! @decodeGlobalId): User
+    user(id: ID! @globalIdDecode): User
     node(id: ID! @globalIdDecode(returnIdOnly: false)): Node
   }
 
