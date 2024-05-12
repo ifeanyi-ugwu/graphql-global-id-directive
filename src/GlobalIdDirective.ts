@@ -17,6 +17,7 @@ export class GlobalIdDirective {
   }
 
   decodeFn(globalId: string) {
+    if (globalId === undefined) return {};
     const paddedGlobalId = globalId + "===".slice((globalId.length + 3) % 4);
     const urlSafeGlobalId = paddedGlobalId
       .replace(/-/g, "+")
