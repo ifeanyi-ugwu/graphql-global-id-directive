@@ -1,1 +1,1 @@
-export * from "./GlobalIdDirective";
+export * from "./GlobalIdDirective.js";
