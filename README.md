@@ -90,7 +90,7 @@ node: async (_, args, { dataSources }) => {
       break;
     // Add more cases as needed for other typenames
     default:
-      throw new Error(`Unsupported typename: ${__typename}`); //Or do  perform another action
+      throw new Error(`Unsupported typename: ${__typename}`); //Or perform another action
   }
 
   return { ...node.toObject({ virtuals: true }), __typename }; // I used a Mongoose document for this example

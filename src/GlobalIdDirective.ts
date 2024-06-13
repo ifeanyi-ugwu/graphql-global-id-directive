@@ -9,6 +9,14 @@ export class GlobalIdDirective {
   constructor() {}
 
   encodeFn(id: string, typeName: string) {
+    if (
+      id === null ||
+      id === undefined ||
+      typeName === null ||
+      typeName === undefined
+    ) {
+      return;
+    }
     return Buffer.from(`${id}:${typeName}`, "utf8")
       .toString("base64")
       .replace(/\+/g, "-")
@@ -17,7 +25,7 @@ export class GlobalIdDirective {
   }
 
   decodeFn(globalId: string) {
-    if (globalId === undefined) return {};
+    if (globalId === undefined || globalId === null) return {};
     const paddedGlobalId = globalId + "===".slice((globalId.length + 3) % 4);
     const urlSafeGlobalId = paddedGlobalId
       .replace(/-/g, "+")
