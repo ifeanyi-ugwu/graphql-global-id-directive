@@ -1,9 +1,6 @@
 import { getDirective, MapperKind, mapSchema } from "@graphql-tools/utils";
-import {
-  defaultFieldResolver,
-  GraphQLScalarType,
-  GraphQLSchema,
-} from "graphql";
+import { defaultFieldResolver, GraphQLSchema } from "graphql";
+import { wrapType } from "./utils.js";
 
 export class GlobalIdDirective {
   constructor() {}
@@ -85,14 +82,13 @@ export class GlobalIdDirective {
     const typeDirectiveArgumentMaps: Record<string, any> = {};
 
     return {
-      globalIdDecodeDirectiveTypeDefs: `directive @${directiveName}(returnIdOnly: Boolean = true) on ARGUMENT_DEFINITION | INPUT_FIELD_DEFINITION`,
+      globalIdDecodeDirectiveTypeDefs: `directive @${directiveName}(returnIdOnly: Boolean = true) on ARGUMENT_DEFINITION | INPUT_FIELD_DEFINITION | FIELD_DEFINITION`,
       globalIdDecodeDirectiveTransformer: (schema: GraphQLSchema) =>
         mapSchema(schema, {
           [MapperKind.OBJECT_FIELD]: (fieldConfig, fieldName, typeName) => {
             const originalResolve = fieldConfig.resolve || defaultFieldResolver;
             fieldConfig.resolve = (source, args, context, info) => {
               if (fieldConfig.args) {
-                // Decode all arguments that have the directive
                 Object.keys(fieldConfig.args).forEach((argName) => {
                   const argConfig = fieldConfig.args![argName];
                   const globalIdDecodeDirective = getDirective(
@@ -102,10 +98,6 @@ export class GlobalIdDirective {
                   )?.[0];
                   if (globalIdDecodeDirective) {
                     const decodedObject = this.decodeFn(args[argName]);
-
-                    // args[argName] = globalIdDecode(args[argName]);
-
-                    // Use only the id from the decoded object if returnIdOnly is true
                     args[argName] =
                       globalIdDecodeDirective.returnIdOnly !== false
                         ? decodedObject.id
@@ -123,43 +115,15 @@ export class GlobalIdDirective {
             fieldName,
             typeName
           ) => {
-            const globalIdDecodeDirective =
-              getDirective(schema, inputFieldConfig, directiveName)?.[0] ??
-              typeDirectiveArgumentMaps[typeName];
+            const globalIdDecodeDirective = getDirective(
+              schema,
+              inputFieldConfig,
+              directiveName
+            )?.[0];
             if (globalIdDecodeDirective) {
-              if (inputFieldConfig.type instanceof GraphQLScalarType) {
-                const originalType = inputFieldConfig.type;
-                const self = this; // Capture 'this' reference
-                inputFieldConfig.type = new GraphQLScalarType({
-                  ...originalType.toConfig(),
-                  name: `Decodable${originalType.name}`,
-                  //description: `A  decoded ${originalType.name}`,
-                  //  serialize: originalType.serialize.bind(originalType),
-                  /*parseValue(value) {
-                  return originalType.parseValue.bind(originalType)(value);
-                },*/
-                  parseValue: (value: unknown) => {
-                    // Parse value with original parseValue method
-                    const parsedValue =
-                      originalType.parseValue.bind(originalType)(value);
-
-                    // Parse global ID to raw ID
-                    if (typeof parsedValue === "string") {
-                      try {
-                        const decodedObject = self.decodeFn(parsedValue);
-                        return globalIdDecodeDirective.returnIdOnly !== false
-                          ? decodedObject.id
-                          : JSON.stringify(decodedObject);
-                      } catch (err) {
-                        throw new Error("Invalid GlobalId");
-                      }
-                    }
-                    throw new Error("Expected string for parsing into ID");
-                  },
-                });
-              }
-              return inputFieldConfig;
+              wrapType(inputFieldConfig, globalIdDecodeDirective, this);
             }
+            return inputFieldConfig;
           },
         }),
     };
