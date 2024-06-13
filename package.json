@@ -1,6 +1,6 @@
 {
   "name": "graphql-global-id-directive",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "graphql-global-id-directive is a package that includes a GlobalIdDirective class, which offers two directives: globalIdEncodeDirective and globalIdDecodeDirective. These directives handle the encoding and decoding of global IDs, making it a breeze to integrate global IDs into any GraphQL application.",
   "main": "dist/index.js",
   "types": "types/index.d.ts",
