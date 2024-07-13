@@ -26,8 +26,8 @@ const typeDefs = `
   }
 
   type Query {
-    user(id: ID! @globalIdDecode): User
-    node(id: ID! @globalIdDecode(returnIdOnly: false)): Node
+    user(id: ID! @decodeGlobalId): User
+    node(id: ID! @decodeGlobalId(returnIdOnly: false)): Node
   }
 
   type User implements Node {
@@ -38,7 +38,7 @@ const typeDefs = `
 `;
 ```
 
-In the type definition of the node query, use the `@globalIdDecode` directive with the `returnIdOnly` option set to `false`. This ensures that the stringified decoded global ID object is returned instead of just the underlying id which is the default behavior, allowing you to parse and use both the underlying `id` and `__typename` in your resolver.
+In the type definition of the node query, use the `@decodeGlobalId` directive with the `returnIdOnly` option set to `false`. This ensures that the stringified decoded global ID object is returned instead of just the underlying id which is the default behavior, allowing you to parse and use both the underlying `id` and `__typename` in your resolver.
 
 ### Apply the directives to your schema
 
