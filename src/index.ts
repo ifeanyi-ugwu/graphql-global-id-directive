@@ -1,1 +1,6 @@
-export * from "./GlobalIdDirective.js";
+export { GlobalIdDirective } from "./GlobalIdDirective.js";
+export {
+  GlobalIdDecodeResult,
+  globalIdDecode,
+  globalIdEncode,
+} from "./utils.js";

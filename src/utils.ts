@@ -60,3 +60,44 @@ export function wrapType(
     );
   }
 }
+
+// Default encode function
+export function globalIdEncode(
+  id: string,
+  typeName: string
+): string | undefined {
+  if (
+    id === null ||
+    id === undefined ||
+    typeName === null ||
+    typeName === undefined
+  ) {
+    return;
+  }
+  return Buffer.from(`${id}:${typeName}`, "utf8")
+    .toString("base64")
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=+$/, "");
+}
+
+export type GlobalIdDecodeResult = {
+  id: string | undefined;
+  __typename: string | undefined;
+};
+
+// Default decode function
+export function globalIdDecode(globalId: string): GlobalIdDecodeResult {
+  if (globalId === undefined || globalId === null)
+    return { id: undefined, __typename: undefined };
+  const paddedGlobalId = globalId + "===".slice((globalId.length + 3) % 4);
+  const urlSafeGlobalId = paddedGlobalId.replace(/-/g, "+").replace(/_/g, "/");
+  const decoded = Buffer.from(urlSafeGlobalId, "base64").toString("utf8");
+  const parts = decoded.split(":");
+
+  if (parts.length !== 2) {
+    throw new Error(`Invalid global ID: ${globalId}`);
+  }
+
+  return { id: parts[0], __typename: parts[1] };
+}

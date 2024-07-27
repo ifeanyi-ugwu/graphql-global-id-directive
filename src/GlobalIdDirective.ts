@@ -1,41 +1,19 @@
 import { getDirective, MapperKind, mapSchema } from "@graphql-tools/utils";
 import { defaultFieldResolver, GraphQLSchema } from "graphql";
-import { wrapType } from "./utils.js";
+import {
+  globalIdDecode,
+  GlobalIdDecodeResult,
+  globalIdEncode,
+  wrapType,
+} from "./utils.js";
 
 export class GlobalIdDirective {
-  constructor() {}
+  private encodeFn: (id: string, typeName: string) => string | undefined;
+  private decodeFn: (globalId: string) => GlobalIdDecodeResult;
 
-  encodeFn(id: string, typeName: string) {
-    if (
-      id === null ||
-      id === undefined ||
-      typeName === null ||
-      typeName === undefined
-    ) {
-      return;
-    }
-    return Buffer.from(`${id}:${typeName}`, "utf8")
-      .toString("base64")
-      .replace(/\+/g, "-")
-      .replace(/\//g, "_")
-      .replace(/=+$/, "");
-  }
-
-  decodeFn(globalId: string) {
-    if (globalId === undefined || globalId === null) return {};
-    const paddedGlobalId = globalId + "===".slice((globalId.length + 3) % 4);
-    const urlSafeGlobalId = paddedGlobalId
-      .replace(/-/g, "+")
-      .replace(/_/g, "/");
-    const decoded = Buffer.from(urlSafeGlobalId, "base64").toString("utf8");
-    const parts = decoded.split(":");
-
-    // Check if the decoded string has the correct format
-    if (parts.length !== 2) {
-      throw new Error(`Invalid global ID: ${globalId}`);
-    }
-
-    return { id: parts[0], __typename: parts[1] };
+  constructor() {
+    this.encodeFn = globalIdEncode;
+    this.decodeFn = globalIdDecode;
   }
 
   globalIdEncodeDirective(directiveName: string) {
